@@ -1,9 +1,10 @@
 package criteriamanager
 
 import (
-	kit "godbkit/internal/kit"
 	"strconv"
 	"strings"
+
+	kit "github.com/jgomezhrdz/godbkit/internal/kit"
 )
 
 func CriteriaFromRequest(queryParam map[string][]string) Criteria {

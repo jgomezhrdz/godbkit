@@ -1,18 +1,18 @@
-# Database ORM Facade
+# GORM Facade
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/yourusername/orm-facade.svg)](https://pkg.go.dev/github.com/yourusername/orm-facade)
+[![Go Reference](https://pkg.go.dev/badge/github.com/jgomezhrdz/godbkit.svg)](https://pkg.go.dev/github.com/jgomezhrdz/godbkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/orm-facade)](https://goreportcard.com/report/github.com/yourusername/orm-facade)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jgomezhrdz/godbkit)](https://goreportcard.com/report/github.com/jgomezhrdz/godbkit)
 
-Database ORM Facade is a powerful abstraction layer that provides a unified interface for working with multiple ORMs in Go. It implements the Criteria pattern to build complex queries in a clean, type-safe manner, making it easy to switch between different database backends while maintaining a consistent API.
+GORM Facade is a powerful abstraction layer that provides a clean and consistent interface for working with GORM in Go. It implements the Criteria pattern to build complex queries in a type-safe manner, making database operations more maintainable and testable.
 
 ## Why Use This Package?
 
-- **ORM Agnostic**: Write database-agnostic code that works with multiple ORMs (currently supports GORM with extensibility for others)
+- **Simplified GORM Usage**: Provides a cleaner, more intuitive API on top of GORM
 - **Criteria Pattern**: Build complex queries using a fluent, type-safe Criteria API
-- **Consistent API**: Same interface across different database backends
-- **Transaction Management**: Simplified transaction handling across different ORMs
-- **Batch Operations**: Efficient batch processing with worker pools
+- **Consistent API**: Standardized way to perform common database operations
+- **Batch Operations**: Efficient batch processing with built-in worker pools
+- **Type Safety**: Compile-time checking of query structures
 
 ## Features
 
@@ -29,15 +29,16 @@ Database ORM Facade is a powerful abstraction layer that provides a unified inte
 ## Installation
 
 ```bash
-go get github.com/yourusername/orm-facade
+go get github.com/jgomezhrdz/godbkit
 ```
 
-## Supported ORMs
+## Features
 
-- [x] GORM (primary support)
-- [ ] SQLBoiler (planned)
-- [ ] Ent (planned)
-- [ ] XORM (planned)
+- **Query Building**: Fluent API for building complex queries
+- **Batch Processing**: Concurrent processing of database operations
+- **Worker Pool**: Configurable worker pool for concurrent operations
+- **Criteria API**: Type-safe query construction
+- **Pagination**: Built-in support for paginated results
 
 ## Core Concepts
 
@@ -54,23 +55,13 @@ criteria := criteriamanager.NewCriteria()
     .SetOffset(0)
 ```
 
-### ORM Adapters
+### Core Components
 
-Each supported ORM has its own adapter that implements the common interface:
-
-```go
-type DatabaseFacade interface {
-    Select(ctx context.Context, criteria Criteria, model interface{}, result interface{}) error
-    Create(ctx context.Context, model interface{}) error
-    Update(ctx context.Context, model interface{}) error
-    Delete(ctx context.Context, model interface{}) error
-    // ... other common operations
-}
-```
+1. **Criteria Manager**: Builds and manages query criteria
+2. **Worker Pool**: Manages concurrent database operations
+3. **Facade**: Provides a simplified interface to GORM operations
 
 ## Quick Start
-
-### Using with GORM
 
 ```go
 package main
@@ -81,8 +72,8 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"github.com/yourusername/orm-facade/facade"
-	"github.com/yourusername/orm-facade/criteriamanager"
+	"github.com/jgomezhrdz/godbkit/facade"
+	"github.com/jgomezhrdz/godbkit/criteriamanager"
 )
 
 type User struct {
@@ -144,50 +135,56 @@ func main() {
 
 ## Documentation
 
-### Available Methods
+### Criteria Manager
 
-#### Create
-```go
-func Create(db *gorm.DB, ctx context.Context, model interface{}) error
-```
-Creates a new record and handles NULL values for nil pointer fields.
+The `criteriamanager` package provides a fluent API for building complex queries:
 
-#### CreateBatch
 ```go
-func CreateBatch[Records any](db *gorm.DB, ctx context.Context, table string, data []Records, batchSize *int) error
+criteria := criteriamanager.NewCriteria()
+    .AddFilter("name", "=", "John")
+    .AddFilter("age", ">", 21)
+    .SetOrder("created_at DESC")
+    .SetLimit(10)
+    .SetOffset(0)
 ```
-Creates multiple records in batches with the specified batch size.
 
-#### Update
-```go
-func Update[Records any](db *gorm.DB, ctx context.Context, idField string, model *Records) error
-```
-Updates a record by ID and handles NULL values for nil pointer fields.
+### Worker Pool
 
-#### UpdateBatch
-```go
-func UpdateBatch[Records any](db *gorm.DB, ctx context.Context, idField string, data []Records, workerSize *int) error
-```
-Updates multiple records concurrently using a worker pool.
+The `worker` package provides a worker pool for concurrent processing:
 
-#### Select
 ```go
-func Select(
-    ctx context.Context,
-    db *gorm.DB,
-    criteria criteriamanager.Criteria,
-    model interface{},
-    response interface{},
-    selectQuery string,
-    joinQuery []string,
-    conditions []string,
-) error
+pool := worker.NewPool(5) // Create a pool with 5 workers
+pool.Start()
+
+defer pool.Stop()
+
+// Submit tasks to the pool
+for _, task := range tasks {
+    pool.Submit(task)
+}
 ```
-Executes a query with filters, joins, ordering, limits, and conditions.
+
+### Facade
+
+The `facade` package provides a simplified interface to GORM operations:
+
+```go
+gormDB, _ := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+dbFacade := facade.NewGormFacade(gormDB)
+
+// Use the facade for database operations
+err := dbFacade.Create(context.Background(), &user)
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create a new branch for your feature
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
 ## License
 
@@ -196,3 +193,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgements
 
 - [GORM](https://gorm.io/) - The fantastic ORM library for Go
+- [Work Pool Pattern](https://gobyexample.com/worker-pools) - For the worker pool implementation

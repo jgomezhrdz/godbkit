@@ -1,4 +1,4 @@
-module godbkit
+module github.com/jgomezhrdz/godbkit
 
 go 1.22.1
 

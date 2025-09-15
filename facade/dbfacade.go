@@ -2,7 +2,8 @@ package godbkit
 
 import (
 	"context"
-	"godbkit/criteriamanager"
+
+	"github.com/jgomezhrdz/godbkit/criteriamanager"
 )
 
 type godbkit interface {

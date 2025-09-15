@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strings"
 
-	"godbkit/criteriamanager"
-	worker "godbkit/internal/worker"
+	"github.com/jgomezhrdz/godbkit/criteriamanager"
+	worker "github.com/jgomezhrdz/godbkit/internal/worker"
 
 	"gorm.io/gorm"
 )
