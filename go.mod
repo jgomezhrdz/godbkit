@@ -1,8 +1,8 @@
 module github.com/jgomezhrdz/godbkit
 
-go 1.22.1
+go 1.21.5
 
-require gorm.io/gorm v1.26.1
+require gorm.io/gorm v1.31.0
 
 require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
